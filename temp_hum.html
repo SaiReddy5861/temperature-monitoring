@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+	    <meta charset="utf-8" />
+	    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	    <title>Temperature&Humidity</title> 
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.8.0.min.js"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+
+<script>
+	    		
+
+			var wsbroker = "34.226.134.195";  //mqtt websocket enabled broker
+				var wsport = 3033 // port for above
+				    
+				var client = new Paho.MQTT.Client(wsbroker, wsport,
+				        "myclientid_" + parseInt(Math.random() * 100, 10));
+				    
+				    client.onConnectionLost = function (responseObject) {
+				      console.log("connection lost: " + responseObject.errorMessage);
+				};
+
+				    
+				    
+				var options = {
+				      timeout: 3,
+				      onSuccess: function () {
+				        console.log("mqtt connected");
+				        
+				        // Connection succeeded; subscribe to our topic, you can add multile lines of these
+				        
+				        
+				        client.subscribe('temp-hum-ps', {qos: 1});
+				        },
+				      
+				      onFailure: function (message) {
+				        console.log("Connection failed: " + message.errorMessage);
+				      }
+				    };   		
+    		
+			$(document).ready(function() {				
+					    
+				    client.onMessageArrived = function (message) {
+				    	console.log("hey");
+				      	console.log(message.destinationName, ' -- ', message.payloadString);
+						var obj = JSON.parse(message.payloadString);
+							
+						seminar_hall_out_temp = obj["sensor_out"]["temp"]
+						seminar_hall_out_hum  = obj["sensor_out"]["hum"]
+						seminar_hall_in_temp  = obj["sensor_in"]["temp"]
+						seminar_hall_in_hum	  = obj["sensor_in"]["hum"]
+
+						//alert(seminar_hall_in_temp);
+						$('#tempin').html(seminar_hall_in_temp);
+						$("#tempout").html(seminar_hall_out_temp);
+						$("#humout").html(seminar_hall_out_hum);
+						$("#humin").html(seminar_hall_in_hum);
+
+						
+				    };
+
+
+	
+
+		client.connect(options);
+
+    				
+		});
+	    </script>
+	</head>
+	<style type="text/css">
+	</style>
+	<body>
+
+	<div class="chart-container">
+		<div class="row">
+			
+				<h2 style="text-align:center;"><STRONG>ADITYA ENGINEERING COLLEGE</STRONG><h2>
+				<h4 style="text-align:center;"><STRONG>Temperature and Humidity</STRONG><h4>
+				<h4 style="text-align:center;"><STRONG>Outside Seminar Hall</STRONG><h4>
+		
+				<div id="temp_out" class="col-lg-6" style="text-align:center; background-color: #C1CD32;	">
+					<h1 style="color:white;"> Temperature Now (Degrees)</h1>
+					<h1 style="color: white; font-size: 80px;" id="tempout" ></h1>
+				</div>
+		
+				<div id="hum_out" class="col-lg-6" style="text-align:center; background-color: #40441B;	">
+					<h1 style="color:white;"> Humidity Now (Percentage)</h1>
+					<h1 style="color: white; font-size: 80px;" id="humout">65</h1>	
+				</div>		
+
+
+				<h4 style="text-align:center;"><STRONG>Inside Seminar Hall</STRONG><h4>
+		
+				<div id="temp_in" class="col-lg-6" style="text-align:center; background-color: #368BAD;	">
+					<h1 style="color:white;"> Temperature Now (Degrees)</h1>
+					<h1 style="color: white; font-size: 80px;" id="tempin">0</h1>
+
+					<!-- <h1 style="color: white; font-size: 80px;">54<i class="fas fa-thermometer-empty"></i></h1>
+ -->
+				</div>
+		
+				<div id="hum_in" class="col-lg-6" style="text-align:center; background-color: #5D666A;	">
+					<h1 style="color:white;"> Humidity Now (Percentage)</h1>
+					<h1 style="color: white; font-size: 80px;" id="humin">65</h1>	
+				</div>		
+
+
+
+		</div>
+	</div>		
+
+
+	</body>
+</html>>
